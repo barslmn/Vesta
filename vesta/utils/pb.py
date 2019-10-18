@@ -60,5 +60,5 @@ to be continued...
 # indb = Individual('B')
 # unionab = Union(inda, indb)
 # family.add_individual(inda)
-# family.add_individual(indb)
-# family.add_union(unionab)
+# family.append(indb)
+# family.append(unionab)
