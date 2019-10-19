@@ -12,6 +12,9 @@ class Sex(object):
     def __str__(self):
         return self.sex
 
+    def __eq__(self, other):
+        return self.sex == other
+
     @property
     def numeric(self):
         if self.sex == 'unknown':
@@ -127,12 +130,12 @@ class Individual(object):
         self.name = name
 
         if parents is not None:
-            self.parents = parents
+            self._parents = parents
         # If there are no parents set it to 0
         else:
             null_individual = Individual(name='0', parents='0')
             null_union = Union(null_individual, null_individual)
-            self.parents = null_union
+            self._parents = null_union
 
         self.sex = Sex(sex)
         self.condition = Condition(condition)
@@ -144,11 +147,19 @@ class Individual(object):
     def __repr__(self):
         return self.name
 
-    def add_siblings():
+    @property
+    def parents(self):
+        return self._parents
+
+    @parents.setter
+    def parents(self, union):
+        self._parents = union
+
+    def add_siblings(self):
         """ List of Individual objects """
         pass
 
-    def add_twins():
+    def add_twins(self):
         """ Dictionary object"""
         pass
 
@@ -158,8 +169,19 @@ class Union(object):
     """Holds two individuals and union type"""
 
     def __init__(self, A, B):
-        self.A = A
-        self.B = B
+        if A.name != '0' and B.name != '0':
+            if A.sex == 'unknown' or B.sex == 'unknown':
+                print('hi')
+                raise AttributeError('Individuals in a union expected to have their sex assigned.')
+            if (A.sex == 'male' and B.sex == 'male') or (A.sex == 'female' and B.sex == 'female'):
+                raise AttributeError('Individuals in a union expected to have opposite sex assigned.')
+
+        if B.sex == 'male' and A.sex == 'female':
+            self.A = B
+            self.B = A
+        else:
+            self.A = A
+            self.B = B
 
     def __str__(self):
         return f'Union between {self.A} and {self.B}'
@@ -168,10 +190,17 @@ class Union(object):
         return f'Union between {self.A} and {self.B}'
 
 
-a = Individual('a')
-b = Individual('b')
-u = Union(a, b)
-c = Individual('c', parents=u)
-f = Pedigree('abc', [a, b, c])
+a = Individual('a', sex='male')
+b = Individual('b', sex='female')
+i = Individual('i', sex='female')
+j = Individual('j', sex='male')
+
+m = Union(a, b)
+n = Union(i, j)
+
+c = Individual('c', parents=m)
+f = Pedigree('abc', [a, b, c, i, j])
 print(f.unions)
+print(f.hapmap())
+c.parents = n
 print(f.hapmap())
