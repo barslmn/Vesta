@@ -45,16 +45,18 @@ class Condition(object):
             return 2
 
 
-class Pedigree(object):
+class Pedigree:
 
     """Holds family name Individuals, Unions.
     This class has methods for counting marriages, founders etc."""
 
-    def __init__(self, name, individuals):
+    def __init__(self, name, individuals=None):
         """TODO: to be defined. """
         self.name = name
-        self._individuals = individuals
-        pass
+        if individuals:
+            self._individuals = individuals
+        else:
+            self._individuals = []
 
     def __str__(self):
         return self.name
@@ -116,7 +118,14 @@ class Pedigree(object):
     def hapmap(self):
         hapmap_str = ''
         for individual in self.individuals:
-            hapmap_str += f'{self.name}\t{individual.name}\t{individual.parents.A}\t{individual.parents.B}\t{individual.sex.numeric}\t{individual.condition.numeric}\n'
+            hapmap_str += '{}\t{}\t{}\t{}\t{}\t{}\n'.format(
+                self.name,
+                individual.name,
+                individual.parents.A,
+                individual.parents.B,
+                individual.sex.numeric,
+                individual.condition.numeric,
+            )
         return hapmap_str
 
 
@@ -171,10 +180,11 @@ class Union(object):
     def __init__(self, A, B):
         if A.name != '0' and B.name != '0':
             if A.sex == 'unknown' or B.sex == 'unknown':
-                print('hi')
-                raise AttributeError('Individuals in a union expected to have their sex assigned.')
+                raise AttributeError(
+                    'Individuals in a union expected to have their sex assigned.')
             if (A.sex == 'male' and B.sex == 'male') or (A.sex == 'female' and B.sex == 'female'):
-                raise AttributeError('Individuals in a union expected to have opposite sex assigned.')
+                raise AttributeError(
+                    'Individuals in a union expected to have opposite sex assigned.')
 
         if B.sex == 'male' and A.sex == 'female':
             self.A = B
@@ -190,17 +200,24 @@ class Union(object):
         return f'Union between {self.A} and {self.B}'
 
 
-a = Individual('a', sex='male')
-b = Individual('b', sex='female')
-i = Individual('i', sex='female')
-j = Individual('j', sex='male')
+def test():
+    a = Individual('a', sex='male')
+    b = Individual('b', sex='female')
+    i = Individual('i', sex='female')
+    j = Individual('j', sex='male')
 
-m = Union(a, b)
-n = Union(i, j)
+    m = Union(a, b)
+    n = Union(i, j)
 
-c = Individual('c', parents=m)
-f = Pedigree('abc', [a, b, c, i, j])
-print(f.unions)
-print(f.hapmap())
-c.parents = n
-print(f.hapmap())
+    c = Individual('c', parents=m)
+    f = Pedigree('abc', [a, b, c, i, j])
+    print(f.unions)
+    print(f.hapmap())
+    c.parents = n
+    print(f.hapmap())
+
+
+# a = Individual('a', sex='male')
+# p = Pedigree('foo')
+# p.append(a)
+# test()
